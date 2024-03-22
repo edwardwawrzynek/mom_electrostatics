@@ -19,8 +19,7 @@ classdef BasisFunctions
         % sigma_pt, sigma_ptl, sigma_ptr are location of the charge
         % w_pt, w_ptl, w_ptr are the location of the test function
         function v = innerProduct(obj, w_pt, w_ptl, w_ptr, sigma_pt, sigma_ptl, sigma_ptr)
-            % epsilon0 = 8.85418781e-12;
-            epsilon0 = 1;
+            epsilon0 = 8.85418781e-12;
 
             v = 0;
             switch obj
@@ -35,7 +34,7 @@ classdef BasisFunctions
 
         % evaluate the voltage at v_pt created by a basis function at sigma_ptr
         function v = evaluateVoltage(obj, v_pt, sigma_pt, sigma_ptl, sigma_ptr, min_dist)
-            epsilon0 = 1;
+            epsilon0 = 8.85418781e-12;
             
             v = 0;
             switch obj

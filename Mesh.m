@@ -15,6 +15,7 @@ classdef Mesh
         
         % Display the mesh points and edges
         function plotMesh(obj)
+            figure;
             plot([obj.points(:,1); obj.points(1,1)], [obj.points(:,2); obj.points(1,2)], '-o');
         end
 
@@ -22,7 +23,9 @@ classdef Mesh
         function plotCharge(obj)
             % compute the absolue maximum charge value
             max_charge = max(obj.weights);
-
+            
+            figure;
+            title("Surface Charge Density");
             cm = colormap(jet);
             colorbar;
 
@@ -59,16 +62,18 @@ classdef Mesh
             
             % minimum distance at which to evaluate v
             min_dist = 0.5 * min(xdist, ydist)*scale_factor/n;
+
+            epsilon0 = 8.85418781e-12;
             
             for i = 1:n
                 for j = 1:n
-                    pt = [xleft + (i-1) * scale_factor * xdist/n, yleft + (j-1) * scale_factor * ydist/n];
+                    pt = [xleft + (j-1) * scale_factor * xdist/n, yleft + (i-1) * scale_factor * ydist/n];
                     % Sum contribution from each basis
                     for k = 1:obj.num_pts
                         %v(i,j) = v(i,j) + obj.weights(k) * obj.basis.evaluateVoltage(pt, pts_neighbors(k+1,:), pts_neighbors(k,:), pts_neighbors(k+2,:), );
                         dist = max(norm(pt - obj.points(k,:)), min_dist);
 
-                        v(i,j) = v(i,j) + 1/(4*pi) * 1 / dist;
+                        v(i,j) = v(i,j) + obj.weights(k) / (4*pi*epsilon0) * 1 / dist;
                     end
                 end
             end
@@ -79,9 +84,12 @@ classdef Mesh
             [v, xleft, xright, yleft, yright] = obj.computeVoltage(scale_factor, n);
             
             figure;
-            colormap("jet");
-            imagesc(rot90(v));
-            title("Voltage");
+            colormap(jet);
+            imagesc(linspace(xleft, xright, n),linspace(yleft,yright,n),v);
+            set(gca, 'YDir', 'normal');
+            title("Voltage [V]");
+            xlabel("x [m]");
+            ylabel("y [m]");
             colorbar;
 
             % Compute electric field strength
@@ -92,10 +100,13 @@ classdef Mesh
             E = sqrt(E_x .^ 2 + E_y .^ 2);
             
             figure;
-            colormap("jet");
-            imagesc(rot90(E));
+            colormap(pink);
+            imagesc(linspace(xleft, xright, n),linspace(yleft,yright,n),E);
+            set(gca, 'YDir', 'normal');
             colorbar;
-            title("Electric Field Intensity [dB]");
+            title("Electric Field Intensity [V/m]");
+            xlabel("x [m]");
+            ylabel("y [m]");
         end
 
         % Solve for the charge distribution created by charging the mesh to

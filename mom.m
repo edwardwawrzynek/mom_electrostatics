@@ -3,13 +3,15 @@
 % Edward Wawrzynek, Max Eaton, Andrew Zirger
 
 function mom
+    set(0,'defaultTextInterpreter','latex');
     mesh = endpointsMesh(table2array(readtable("culogo.csv")), 1000, BasisFunctions.Delta);
+    mesh.points = mesh.points / 200.0;
     %mesh = circleMesh(1000, BasisFunctions.Delta);
     mesh.plotMesh();
 
     mesh = mesh.solve(1.0);
     mesh.plotCharge();
-    mesh.plotVoltage(2, 250);
+    mesh.plotVoltage(1.7, 350);
 end
 
 % construct a mesh for a circle of radius 1 from the specified number of
@@ -106,7 +108,7 @@ function mesh = endpointsMesh(endpoints, numPts, basis) %creates a mesh of equal
                         else
                             distLeft = distLeft - (2^0.5)*(newPt(1)-segArr(curSeg,3));
                             newPt(1) = newPt(1) - (newPt(1)-segArr(curSeg,3));
-                            newPt(2) = newPt(2) + (newPt(2)-segArr(curSeg,4));
+                            newPt(2) = newPt(2) - (newPt(2)-segArr(curSeg,4));
                             curSeg = curSeg+1;
                         end
                         
