@@ -1,0 +1,40 @@
+% Methods of Moments for Electrostatics
+% APPM3310 Final Project
+% Edward Wawrzynek, Max Eaton, Andrew Zirger
+
+function mom
+    %circle = circleMesh(1000, BasisFunctions.Delta);
+    %circle = circle.solve(1);
+    %circle.plotCharge();
+
+    %box = squareMesh(10, BasisFunctions.Delta);
+    box = circleMesh(100, BasisFunctions.Delta);
+    box = box.solve(1);
+    box.plotCharge();
+    figure;
+    box.plotVoltage(2.0, 100);
+
+    disp(box.weights);
+end
+
+% construct a mesh for a circle of radius 1 from the specified number of
+% points
+function mesh = circleMesh(num_pts, basis)
+    pts = zeros(num_pts, 2);
+    for i = 1:1:num_pts
+        pts(i,:) = [cos(i/num_pts * 2*pi) sin(i/num_pts * 2*pi)];
+    end
+
+    mesh = Mesh(pts, basis);
+end
+
+% construct a mesh for a square of side length 1
+function mesh = squareMesh(n, basis)
+    pts = [ [linspace(0,1-1/n,n).' zeros(n,1)]; ...
+            [ones(n,1) linspace(0,1-1/n,n).']; ...
+            [linspace(1,1/n,n).' ones(n,1)]; ...
+            [zeros(n,1) linspace(1,1/n,n).']
+        ];
+    
+    mesh = Mesh(pts, basis);
+end

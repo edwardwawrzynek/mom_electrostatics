@@ -3,28 +3,27 @@
 % Edward Wawrzynek, Max Eaton, Andrew Zirger
 
 function mom
-    circle = circleMesh(10);
-    circle.plotMesh();
-    hold on;
-    mid = Mesh(circle.midpointSet());
-    mid.plotMesh();
-    %endPoints = table2array(readtable("culogo.csv"));
-    %meshOut = endpointsMesh(endPoints,500);
-    %meshOut.plotMesh();
+    mesh = endpointsMesh(table2array(readtable("culogo.csv")), 1000, BasisFunctions.Delta);
+    %mesh = circleMesh(1000, BasisFunctions.Delta);
+    mesh.plotMesh();
+
+    mesh = mesh.solve(1.0);
+    mesh.plotCharge();
+    mesh.plotVoltage(2, 250);
 end
 
 % construct a mesh for a circle of radius 1 from the specified number of
 % points
-function mesh = circleMesh(num_pts)
+function mesh = circleMesh(num_pts, basis)
     pts = zeros(num_pts, 2);
     for i = 1:1:num_pts
         pts(i,:) = [cos(i/num_pts * 2*pi) sin(i/num_pts * 2*pi)];
     end
 
-    mesh = Mesh(pts);
+    mesh = Mesh(pts, basis);
 end
 
-function mesh = endpointsMesh(endpoints, numPts) %creates a mesh of equally spaced points around a path defined by endpoints of line segments
+function mesh = endpointsMesh(endpoints, numPts, basis) %creates a mesh of equally spaced points around a path defined by endpoints of line segments
     segArr = [endpoints(1:length(endpoints),:),[endpoints(2:length(endpoints),:); endpoints(1,:)]];
     segLen = 0;
     slopeArr = zeros(length(segArr),1);
@@ -136,5 +135,16 @@ function mesh = endpointsMesh(endpoints, numPts) %creates a mesh of equally spac
         end
         mesh(i,:) = newPt;
     end
-    mesh = Mesh(mesh);
+    mesh = Mesh(mesh, basis);
+end
+
+% construct a mesh for a square of side length 1
+function mesh = squareMesh(n, basis)
+    pts = [ [linspace(0,1-1/n,n).' zeros(n,1)]; ...
+            [ones(n,1) linspace(0,1-1/n,n).']; ...
+            [linspace(1,1/n,n).' ones(n,1)]; ...
+            [zeros(n,1) linspace(1,1/n,n).']
+        ];
+    
+    mesh = Mesh(pts, basis);
 end
