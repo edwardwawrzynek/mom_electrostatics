@@ -73,7 +73,7 @@ classdef BasisFunctions
                 b = 1/(L2-L1);
                 
                 % correct for orientation of triangle
-                if dot(r2, u3) < 0
+                if dot(r2, u3) > 0
                     a = -a + 1;
                     b = -b;
                 end
@@ -86,7 +86,7 @@ classdef BasisFunctions
                 b = 1 / (L2 + L1);
 
                 % correct for orientation of triangle
-                if dot(r2, u3) < 0
+                if norm(r1) > no
                     a = L2 / (L2 + L1);
                     b = -b;
                 end
