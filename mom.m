@@ -4,14 +4,21 @@
 
 function mom
     set(0,'defaultTextInterpreter','latex');
-    mesh = endpointsMesh(table2array(readtable("culogo.csv")), 1000, BasisFunctions.Delta);
+    mesh = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Pulse);
     mesh.points = mesh.points / 200.0;
-    %mesh = circleMesh(1000, BasisFunctions.Delta);
+    
+    %mesh = circleMesh(100, BasisFunctions.Pulse);
+    mesh = Mesh([0 0; 1 1; 2 2], BasisFunctions.Triangle);
+    %mesh = squareMesh(50, BasisFunctions.Pulse);
+    mesh.weights = [0 1 0];
+
     mesh.plotMesh();
 
-    mesh = mesh.solve(1.0);
+    %mesh = mesh.solve(1.0);
     mesh.plotCharge();
-    mesh.plotVoltage(1.7, 350);
+    mesh.plotVoltage(1.7, 100);
+
+    %BasisFunctions.Pulse.evaluateVoltage([2 2], [1 1], [0 0], [0 0], 0.01);
 end
 
 % construct a mesh for a circle of radius 1 from the specified number of

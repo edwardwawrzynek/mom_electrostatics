@@ -70,10 +70,10 @@ classdef Mesh
                     pt = [xleft + (j-1) * scale_factor * xdist/n, yleft + (i-1) * scale_factor * ydist/n];
                     % Sum contribution from each basis
                     for k = 1:obj.num_pts
-                        %v(i,j) = v(i,j) + obj.weights(k) * obj.basis.evaluateVoltage(pt, pts_neighbors(k+1,:), pts_neighbors(k,:), pts_neighbors(k+2,:), );
-                        dist = max(norm(pt - obj.points(k,:)), min_dist);
-
-                        v(i,j) = v(i,j) + obj.weights(k) / (4*pi*epsilon0) * 1 / dist;
+                        v(i,j) = v(i,j) + obj.weights(k) * obj.basis.evaluateVoltage(pt, pts_neighbors(k+1,:), pts_neighbors(k,:), pts_neighbors(k+2,:), min_dist);
+                        
+                        %dist = max(norm(pt - obj.points(k,:)), min_dist);
+                        %v(i,j) = v(i,j) + obj.weights(k) / (4*pi*epsilon0) * 1 / dist;
                     end
                 end
             end
@@ -90,6 +90,7 @@ classdef Mesh
             title("Voltage [V]");
             xlabel("x [m]");
             ylabel("y [m]");
+            axis square;
             colorbar;
 
             % Compute electric field strength
@@ -100,13 +101,14 @@ classdef Mesh
             E = sqrt(E_x .^ 2 + E_y .^ 2);
             
             figure;
-            colormap(pink);
+            colormap(jet);
             imagesc(linspace(xleft, xright, n),linspace(yleft,yright,n),E);
             set(gca, 'YDir', 'normal');
             colorbar;
             title("Electric Field Intensity [V/m]");
             xlabel("x [m]");
             ylabel("y [m]");
+            axis square;
         end
 
         % Solve for the charge distribution created by charging the mesh to
