@@ -4,54 +4,34 @@
 
 function mom
     set(0,'defaultTextInterpreter','latex');
-    % mesh = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Pulse);
-    %mesh.points = mesh.points / 200.0;
-    
-    pts = 200;
-    mesh_delta = circleMesh(pts, BasisFunctions.Delta);
-    mesh_pulse = circleMesh(pts, BasisFunctions.Pulse);
-    mesh_tri = circleMesh(pts, BasisFunctions.Triangle);
 
-    %mesh = Mesh([0 0; 1 1; 2 2], BasisFunctions.Delta);
-    %mesh = squareMesh(100, BasisFunctions.Pulse);
-    %mesh = roundCornerMesh(100, 0.2, BasisFunctions.Pulse);
-    %mesh.weights = [0 1 0 ];
+    % Example: solve the CU Logo 
+    mesh1 = endpointsMesh(table2array(readtable("culogo.csv")), 300, BasisFunctions.Delta);
+    mesh1.points = mesh1.points / 200.0;
 
-    %mesh.plotMesh();
-    
-    mesh_delta = mesh_delta.solve(1.0);
-    mesh_pulse = mesh_pulse.solve(1.0);
-    mesh_tri = mesh_tri.solve(1.0);
-    
-    sigma = mean(mesh_pulse.weights);
-    
-    n = 200;
+    mesh2 = endpointsMesh(table2array(readtable("culogo.csv")), 300, BasisFunctions.Pulse);
+    mesh2.points = mesh2.points / 200.0;
 
-    [v_tri, ~, ~, ~, ~] = mesh_tri.computeVoltage(1.5, n);
-    [v_pulse, ~, ~, ~, ~] = mesh_pulse.computeVoltage(1.5, n);
-    [v_delta, ~, ~, ~, ~] = mesh_delta.computeVoltage(1.5, n);
-    [v_anal, axleft, axright, ayleft, ayright] = mesh_tri.computeVoltageHoop(1.5, sigma, n);
+    mesh3 = endpointsMesh(table2array(readtable("culogo.csv")), 300, BasisFunctions.Triangle);
+    mesh3.points = mesh3.points / 200.0;
     
-    max_error = max([max(abs(v_pulse-v_anal), [], "all") max(abs(v_delta-v_anal), [], "all") max(abs(v_tri-v_anal), [], "all")]);
+    mesh1 = mesh1.solve(1.0);
+    mesh2 = mesh2.solve(1.0);
+    mesh3 = mesh3.solve(1.0);
 
     f = figure(1);
-    s = subplot(1,3,1);
-    mesh_delta.plotMap(abs(v_delta-v_anal), axleft, axright, ayleft, ayright, n);
-    colormap("hot");
-    caxis(s, [0 max_error]);
+
+    subplot(1,3,1);
+    mesh1.plotCharge();
     title("Delta");
 
-    s = subplot(1,3,2);
-    mesh_pulse.plotMap(abs(v_pulse-v_anal), axleft, axright, ayleft, ayright, n);
-    colormap("hot");
-    caxis(s, [0 max_error]);
+    subplot(1,3,2);
+    mesh2.plotCharge();
     title("Pulse");
 
-    s = subplot(1,3,3);
-    mesh_tri.plotMap(abs(v_tri-v_anal), axleft, axright, ayleft, ayright,200);
-    colormap("hot");
-    caxis(s, [0 max_error]);
-    title("Triangle");
+    subplot(1,3,3);
+    mesh3.plotCharge();
+    title("Triange");
 
     h = axes(f, "visible", "off");
     h.Title.Visible = "on";
@@ -59,15 +39,11 @@ function mom
     h.YLabel.Visible = "on";
     xlabel(h, "x [m]");
     ylabel(h, "y [m]");
-    title("Absolute Error [V]");
-
+    title("Surface Charge Density [C]");
 
     c = colorbar(h, 'Position', [0.93 0.168 0.022 0.7]);
-    colormap(c,'hot');
-    caxis(h, [0 max_error]);
-    
-
-    %BasisFunctions.Pulse.evaluateVoltage([2 2], [1 1], [0 0], [0 0], 0.01);
+    colormap(c,'jet');
+    caxis(h, [min(mesh2.weights) max(mesh2.weights)]);
 end
 
 % construct a mesh for a circle of radius 1 from the specified number of

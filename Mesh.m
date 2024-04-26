@@ -25,11 +25,11 @@ classdef Mesh
             max_charge = max(obj.weights);
             min_charge = min(obj.weights);
             
-            figure;
-            title("Surface Charge Density [C]");
+            %figure;
+            %title("Surface Charge Density [C]");
             cm = colormap(jet);
-            colorbar;
-            caxis([min_charge max_charge]);
+            %colorbar;
+            %caxis([min_charge max_charge]);
 
             plot_pts = [[obj.points(:,1); obj.points(1,1)], [obj.points(:,2); obj.points(1,2)]];
             for i = 1:obj.num_pts
@@ -120,12 +120,12 @@ classdef Mesh
         end
         
         function plotMap(obj, map, xleft, xright, yleft, yright, n)
-            %figure;
-            %colormap(jet);
+            figure;
+            colormap(jet);
             imagesc(linspace(xleft, xright, n),linspace(yleft,yright,n),map);
             set(gca, 'YDir', 'normal');
             axis square;
-            %colorbar;
+            colorbar;
         end
 
         % Display voltage and electric field

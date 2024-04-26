@@ -4,33 +4,18 @@
 
 function mom
     set(0,'defaultTextInterpreter','latex');
-    %mesh = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Pulse);
-    %mesh.points = mesh.points / 200.0;
+
+    % Example: solve the CU Logo 
+    mesh1 = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Delta);
+    mesh1.points = mesh1.points / 200.0;
+
+    mesh2 = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Delta);
+    mesh2.points = mesh2.points / 200.0;
+
+    mesh1 = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Delta);
+    mesh2.points = mesh2.points / 200.0;
     
-    mesh = circleMesh(25, BasisFunctions.Triangle);
-    %mesh = Mesh([0 0; 1 1; 2 2], BasisFunctions.Delta);
-    %mesh = squareMesh(100, BasisFunctions.Pulse);
-    %mesh = roundCornerMesh(100, 0.2, BasisFunctions.Pulse);
-    %mesh.weights = [0 1 0 ];
-
-    %mesh.plotMesh();
-
-    sigma = 0.132510623372155e-10;
-
     mesh = mesh.solve(1.0);
-    %mesh.plotCharge();
-    mesh.plotVoltage(1.7, 200);
-    
-    [v, xleft, xright, yleft, yright] = mesh.computeVoltage(1.7, 200);
-    [v_anal, axleft, axright, ayleft, ayright] = mesh.computeVoltageHoop(1.7, sigma, 200);
-    
-    mesh.plotMap(v-v_anal, axleft, axright, ayleft, ayright,200);
-    title("Absolute Error [V]");
-    xlabel("x [m]");
-    ylabel("y [m]");
-
-    mesh.plotMap(v_anal, axleft, axright, ayleft, a)
-    %BasisFunctions.Pulse.evaluateVoltage([2 2], [1 1], [0 0], [0 0], 0.01);
 end
 
 % construct a mesh for a circle of radius 1 from the specified number of
