@@ -6,16 +6,14 @@ function mom
     set(0,'defaultTextInterpreter','latex');
 
     % Example: solve the CU Logo 
-    mesh1 = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Delta);
+    mesh1 = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Pulse);
     mesh1.points = mesh1.points / 200.0;
-
-    mesh2 = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Delta);
-    mesh2.points = mesh2.points / 200.0;
-
-    mesh1 = endpointsMesh(table2array(readtable("culogo.csv")), 500, BasisFunctions.Delta);
-    mesh2.points = mesh2.points / 200.0;
     
-    mesh = mesh.solve(1.0);
+    mesh1.showMesh();
+
+    mesh1 = mesh1.solve(1.0);
+    mesh1.plotCharge();
+    mesh1.plotVoltage(1.5, 100);
 end
 
 % construct a mesh for a circle of radius 1 from the specified number of
@@ -29,7 +27,33 @@ function mesh = circleMesh(num_pts, basis)
     mesh = Mesh(pts, basis);
 end
 
-function mesh = endpointsMesh(endpoints, numPts, basis) %creates a mesh of equally spaced points around a path defined by endpoints of line segments
+% construct a mesh for a square of side length 1
+function mesh = squareMesh(n, basis)
+    pts = [ [linspace(0,1-1/n,n).' zeros(n,1)]; ...
+            [ones(n,1) linspace(0,1-1/n,n).']; ...
+            [linspace(1,1/n,n).' ones(n,1)]; ...
+            [zeros(n,1) linspace(1,1/n,n).']
+        ];
+    
+    mesh = Mesh(pts, basis);
+end
+
+% construct a mesh for a square with rounded corners
+function mesh = roundCornerMesh(n, radius, basis)
+    pts = [ [linspace(-1+1/n,-1/n, n).' ones(n,1) .* radius]; ...
+            [cos(linspace(pi/2,0,floor(n*pi*radius/2))).' .* radius sin(linspace(pi/2,0,floor(n*pi*radius/2))).' .* radius]; ...
+            [ones(n,1) .* radius linspace(-1/n,-1+1/n, n).']; ...
+            [cos(linspace(0,-pi/2,floor(n*pi*radius/2))).' .* radius sin(linspace(0,-pi/2,floor(n*pi*radius/2))).' .* radius - ones(floor(n*pi*radius/2),1)]; ...
+            [linspace(-1/n,-1+1/n, n).' ones(n,1) .* -(1+radius)]; ...
+            [(cos(linspace(-pi/2,-pi,floor(n*pi*radius/2))).' .* radius -ones(floor(n*pi*radius/2),1)) sin(linspace(-pi/2,-pi,floor(n*pi*radius/2))).' .* radius - ones(floor(n*pi*radius/2),1)]; ...
+            [ones(n,1) .* -(1+radius) linspace(-1+1/n,-1/n, n).']; ...
+            [(cos(linspace(pi,pi/2,floor(n*pi*radius/2))).' .* radius -ones(floor(n*pi*radius/2),1)) sin(linspace(pi,pi/2,floor(n*pi*radius/2))).' .* radius]; ...
+            ];
+    mesh = Mesh(pts, basis);
+end
+
+%creates a mesh of equally spaced points around a path defined by endpoints of line segments
+function mesh = endpointsMesh(endpoints, numPts, basis)
     segArr = [endpoints(1:length(endpoints),:),[endpoints(2:length(endpoints),:); endpoints(1,:)]];
     segLen = 0;
     slopeArr = zeros(length(segArr),1);
@@ -142,29 +166,4 @@ function mesh = endpointsMesh(endpoints, numPts, basis) %creates a mesh of equal
         mesh(i,:) = newPt;
     end
     mesh = Mesh(mesh, basis);
-end
-
-% construct a mesh for a square of side length 1
-function mesh = squareMesh(n, basis)
-    pts = [ [linspace(0,1-1/n,n).' zeros(n,1)]; ...
-            [ones(n,1) linspace(0,1-1/n,n).']; ...
-            [linspace(1,1/n,n).' ones(n,1)]; ...
-            [zeros(n,1) linspace(1,1/n,n).']
-        ];
-    
-    mesh = Mesh(pts, basis);
-end
-
-% construct a mesh with rounded corner
-function mesh = roundCornerMesh(n, radius, basis)
-    pts = [ [linspace(-1+1/n,-1/n, n).' ones(n,1) .* radius]; ...
-            [cos(linspace(pi/2,0,floor(n*pi*radius/2))).' .* radius sin(linspace(pi/2,0,floor(n*pi*radius/2))).' .* radius]; ...
-            [ones(n,1) .* radius linspace(-1/n,-1+1/n, n).']; ...
-            [cos(linspace(0,-pi/2,floor(n*pi*radius/2))).' .* radius sin(linspace(0,-pi/2,floor(n*pi*radius/2))).' .* radius - ones(floor(n*pi*radius/2),1)]; ...
-            [linspace(-1/n,-1+1/n, n).' ones(n,1) .* -(1+radius)]; ...
-            [(cos(linspace(-pi/2,-pi,floor(n*pi*radius/2))).' .* radius -ones(floor(n*pi*radius/2),1)) sin(linspace(-pi/2,-pi,floor(n*pi*radius/2))).' .* radius - ones(floor(n*pi*radius/2),1)]; ...
-            [ones(n,1) .* -(1+radius) linspace(-1+1/n,-1/n, n).']; ...
-            [(cos(linspace(pi,pi/2,floor(n*pi*radius/2))).' .* radius -ones(floor(n*pi*radius/2),1)) sin(linspace(pi,pi/2,floor(n*pi*radius/2))).' .* radius]; ...
-            ];
-    mesh = Mesh(pts, basis);
 end

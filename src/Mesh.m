@@ -46,20 +46,34 @@ classdef Mesh
 
         % Compute the analytic voltage distribution for a hoop of constant
         % charge density sigma centered at the origin with radius 1
-        function [v, xleft, xright, yleft, yright] = computeVoltageHoop(scale_factor, sigma, n)
+        function [v, xleft, xright, yleft, yright] = computeVoltageHoop(obj,scale_factor, sigma, n)
+            epsilon0 = 8.85418781e-12;
+            
+            % Setup scale to mimic the numerically solved hoop
             xleft = -scale_factor;
             xright = scale_factor;
             yleft = -scale_factor;
             yright = scale_factor;
-            xdist = scale_factor * 2;
+            xdist = 2;
             ydist = xdist;
+            min_dist = 0.5 * min(xdist, ydist)*scale_factor/n;
 
             v = zeros(n);
 
             for i = 1:n
                 for j = 1:n
                     pt = [xleft + (j-1) * scale_factor * xdist/n, yleft + (i-1) * scale_factor * ydist/n];
-                    v(i,j) = pt(1) + pt(2);
+                    r = sqrt(pt(1)^2 + pt(2)^2);
+                    % make sure we are at least min_dist away from the
+                    % surface (to avoid voltage singularity on the surface)
+                    if r <= 1 && r > 1-min_dist
+                        r = 1-min_dist;
+                    elseif r > 1 && r < 1 + min_dist
+                        r = 1 + min_dist;
+                    end
+
+                    v(i,j) = sigma / (4*pi*epsilon0) * ...
+                        integral(@(theta) 1./sqrt(r^2 + 1 - 2*r*cos(theta)), 0, 2*pi, "AbsTol", 1e-16);
                 end
             end
         end
@@ -105,21 +119,23 @@ classdef Mesh
             end
         end
         
-        function plotMap(obj, xleft, xright, yleft, yrig)
+        function plotMap(obj, map, xleft, xright, yleft, yright, n)
+            figure;
+            colormap(jet);
+            imagesc(linspace(xleft, xright, n),linspace(yleft,yright,n),map);
+            set(gca, 'YDir', 'normal');
+            axis square;
+            colorbar;
+        end
 
         % Display voltage and electric field
         function plotVoltage(obj, scale_factor, n)
             [v, xleft, xright, yleft, yright] = obj.computeVoltage(scale_factor, n);
             
-            figure;
-            colormap(jet);
-            imagesc(linspace(xleft, xright, n),linspace(yleft,yright,n),v);
-            set(gca, 'YDir', 'normal');
+            obj.plotMap(v, xleft, xright, yleft, yright, n);
             title("Voltage [V]");
             xlabel("x [m]");
             ylabel("y [m]");
-            axis square;
-            colorbar;
 
             % Compute electric field strength
             v_upper = v(1:end-1,1:end-1);
@@ -128,15 +144,10 @@ classdef Mesh
 
             E = sqrt(E_x .^ 2 + E_y .^ 2);
             
-            figure;
-            colormap(jet);
-            imagesc(linspace(xleft, xright, n),linspace(yleft,yright,n),E);
-            set(gca, 'YDir', 'normal');
-            colorbar;
+            obj.plotMap(E, xleft, xright, yleft, yright, n);
             title("Electric Field Intensity [V/m]");
             xlabel("x [m]");
             ylabel("y [m]");
-            axis square;
         end
 
         % Solve for the charge distribution created by charging the mesh to
